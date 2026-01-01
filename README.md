@@ -49,9 +49,13 @@ This section walks you through what is expected from this project.
 ## 01. Build a Data Warehouse (Data Engineering)
 
 ### Objective
-Build a data warehouse that consolidates sales data using the Medallion Architecture **Bronze**, **Silver**, and **Gold**.
+Build a data warehouse that consolidates sales data, and supports data analytics and BI reporting.
 
 ### Data Architecture
+The data warehouse is built using the Medallion Architecture **Bronze**, **Silver**, and **Gold**.
+
+![data_architecture.png](docs/01_data_architecture.png)
+
 * **Bronze**: Stores raw data as-is.
 * **Silver**: Houses cleaned and prepared data.
 * **Gold**: Houses business-ready data.
