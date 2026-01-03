@@ -64,6 +64,7 @@ BEGIN
 		@step_status,
 		@source_path
 	);
+	-- Retrieve recently generated step_run_id from [metadata.etl_step_run]
 	SET @step_run_id = SCOPE_IDENTITY();
 
 	BEGIN TRY
