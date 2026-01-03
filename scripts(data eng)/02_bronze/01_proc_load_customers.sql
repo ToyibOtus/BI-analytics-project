@@ -12,7 +12,7 @@ Parameter: @job_run_id
 Usage: EXEC bronze.usp_load_bronze_customers @job_run_id
 
 Note:
-	* Running this script independently demands that you assign a integer value to @job_run_id.
+	* Running this script independently demands that you assign an integer value to @job_run_id.
 	* It is imperative that this value already exist in the log table [metadata.etl_job_run] due
 	  to the foreign key constraint set on log table [metadata.etl_step_run].
 	* To test the working condition of this script, check folder titled "test_run".
