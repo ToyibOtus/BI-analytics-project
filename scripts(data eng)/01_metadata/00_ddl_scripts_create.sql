@@ -18,6 +18,7 @@ CREATE TABLE metadata.etl_job_run
 (
 	job_run_id INT IDENTITY(1001, 1) NOT NULL,
 	job_name NVARCHAR(50) NOT NULL,
+	job_scope NVARCHAR(50) NOT NULL,
 	start_time DATETIME NOT NULL,
 	end_time DATETIME,
 	job_duration_seconds INT,
@@ -45,6 +46,7 @@ CREATE TABLE metadata.etl_step_run
 	rows_diff INT,
 	CONSTRAINT pk_step_run_id PRIMARY KEY(step_run_id),
 	CONSTRAINT fk_etl_step_run_job_run_id FOREIGN KEY(job_run_id) REFERENCES metadata.etl_job_run(job_run_id),
+	CONSTRAINT chk_etl_step_run_ingest_layer CHECK(ingest_layer IN('BRONZE', 'SILVER', 'GOLD')),
 	CONSTRAINT chk_etl_step_run_step_status CHECK(step_status IN('RUNNING', 'NO OPERATION', 'SUCCESSFUL', 'FAILED'))
 );
 
