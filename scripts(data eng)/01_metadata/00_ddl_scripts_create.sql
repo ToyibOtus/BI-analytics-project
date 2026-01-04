@@ -24,7 +24,7 @@ CREATE TABLE metadata.etl_job_run
 	job_duration_seconds INT,
 	job_status NVARCHAR(50) NOT NULL,
 	CONSTRAINT pk_job_run_id PRIMARY KEY(job_run_id),
-	CONSTRAINT chk_job_status CHECK(job_status IN('RUNNING', 'SUCCESSFUL', 'FAILED'))
+	CONSTRAINT chk_job_status CHECK(job_status IN('TEST RUN', 'RUNNING', 'SUCCESSFUL', 'FAILED'))
 );
 
 -- Create table [metadata.etl_step_run]
