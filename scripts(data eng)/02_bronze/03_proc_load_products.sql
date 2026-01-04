@@ -36,7 +36,9 @@ BEGIN
 	@step_duration INT,
 	@step_status NVARCHAR(50) = 'RUNNING',
 	@source_path NVARCHAR(260) = 'C:\Users\PC\Documents\big-dataset\products.csv',
-	@rows_loaded INT,
+	@rows_updated INT = 0,
+	@rows_inserted INT = 0,
+	@rows_loaded INT = 0,
 	@err_message NVARCHAR(MAX),
 	@sql NVARCHAR(MAX);
 
@@ -53,7 +55,10 @@ BEGIN
 		ingest_table,
 		start_time,
 		step_status,
-		source_path
+		source_path,
+		rows_updated,
+		rows_inserted,
+		rows_loaded
 	)
 	VALUES
 	(
@@ -64,7 +69,10 @@ BEGIN
 		@ingest_table,
 		@start_time,
 		@step_status,
-		@source_path
+		@source_path,
+		@rows_updated,
+		@rows_inserted,
+		@rows_loaded
 	);
 	-- Retrieve recently generated step_run_id from [metadata.etl_step_run]
 	SET @step_run_id = SCOPE_IDENTITY();
@@ -87,7 +95,8 @@ BEGIN
 		SET @end_time = GETDATE();
 		SET @step_duration = DATEDIFF(second, @start_time, @end_time);
 		SET @step_status = 'SUCCESSFUL';
-		SELECT @rows_loaded = COUNT(*) FROM bronze.products;
+		SELECT @rows_inserted = COUNT(*) FROM bronze.products;
+		SET @rows_loaded = @rows_updated + @rows_inserted;
 
 		-- Update log table on successful transaction
 		UPDATE metadata.etl_step_run
@@ -95,6 +104,7 @@ BEGIN
 				end_time = @end_time,
 				step_duration_seconds = @step_duration,
 				step_status = @step_status,
+				rows_inserted = @rows_inserted,
 				rows_loaded = @rows_loaded
 			WHERE step_run_id = @step_run_id;
 	END TRY
@@ -109,7 +119,10 @@ BEGIN
 		IF @@TRANCOUNT > 0 ROLLBACK TRAN;
 
 		-- Map zero to rows loaded if NULL
-		IF @rows_loaded IS NULL SET @rows_loaded = 0;
+		IF @rows_inserted IS NULL SET @rows_inserted = 0;
+
+		-- Calculate rows loaded
+		SET @rows_loaded = @rows_updated + @rows_inserted;
 
 		-- Update log table on failed transaction
 		UPDATE metadata.etl_step_run
@@ -117,6 +130,7 @@ BEGIN
 				end_time = @end_time,
 				step_duration_seconds = @step_duration,
 				step_status = @step_status,
+				rows_inserted = @rows_inserted,
 				rows_loaded = @rows_loaded
 			WHERE step_run_id = @step_run_id;
 
