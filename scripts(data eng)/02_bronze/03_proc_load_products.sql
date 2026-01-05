@@ -28,7 +28,7 @@ BEGIN
 	DECLARE
 	@step_run_id INT,
 	@step_name NVARCHAR(50) = 'usp_load_bronze_products',
-	@load_type NVARCHAR(50) = 'Full',
+	@load_type NVARCHAR(50) = 'FULL',
 	@ingest_layer NVARCHAR(50) = 'BRONZE',
 	@ingest_table NVARCHAR(50) = 'products',
 	@start_time DATETIME,
