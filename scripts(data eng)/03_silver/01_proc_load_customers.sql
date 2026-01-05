@@ -90,7 +90,7 @@ BEGIN
 		IF OBJECT_ID('silver_stg.customers', 'U') IS NOT NULL
 		DROP TABLE silver_stg.customers;
 
-		-- Performe retrieved records from source table
+		-- Transform retrieved records from source table
 		WITH data_transformations AS
 		(
 		SELECT
