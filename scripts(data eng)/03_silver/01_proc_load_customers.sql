@@ -206,29 +206,13 @@ BEGIN
 		WHERE dq_check_name = 'PK_DUPLICATES' AND step_run_id = @step_run_id;
 
 		-- Stop transaction if critical dq rule is violated
-		IF @rows_failed_nulls > 0 OR @rows_failed_duplicates > 0
-		BEGIN
-			SET @end_time = GETDATE();
-			SET @step_duration = DATEDIFF(second, @start_time, @end_time);
-			SET @step_status = 'FAILED';
-			SET @rows_diff = @rows_to_load - @rows_loaded;
-
-			UPDATE metadata.etl_step_run
-				SET
-					end_time = @end_time,
-					step_duration_seconds = @step_duration,
-					step_status = @step_status,
-					rows_to_load = @rows_to_load,
-					rows_diff = @rows_diff
-				WHERE step_run_id = @step_run_id;
-
-			THROW 50001, 'Critical Data Quality Rule Violated: Unable to load due to PRIMARY KEY containing either NULLS or DUPLICATES.', 1;
-		END;
+		IF @rows_failed_nulls > 0 OR @rows_failed_duplicates > 0 THROW 50001, 
+		'Critical Data Quality Rule Violated: Unable to load due to PRIMARY KEY containing either NULLS or DUPLICATES.', 1;
 
 		-- Begin Transaction
 		BEGIN TRAN;
 
-		-- update outdated records
+		-- Update outdated records
 		UPDATE tgt
 			SET
 				tgt.first_name = src.first_name,
