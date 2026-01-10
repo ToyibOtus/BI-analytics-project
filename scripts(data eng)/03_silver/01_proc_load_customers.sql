@@ -1,7 +1,7 @@
 /*
-=============================================================================================
+=======================================================================================================
 Stored Procedure: Load Silver Table (Bronze -> Silver)
-=============================================================================================
+=======================================================================================================
 Script Purpose:
 	This script loads data from a bronze table into a corresponding silver table [customers].
 	It also performs data transformaions where necessary. Additionaly, it loads log tables 
@@ -17,7 +17,7 @@ Note:
 	* It is imperative that this value already exist in the log table [metadata.etl_job_run] due
 	  to the foreign key constraint set on dependent tables.
 	* To test the working condition of this script, check folder titled "test_run".
-=============================================================================================
+=======================================================================================================
 */
 CREATE OR ALTER PROCEDURE silver.usp_load_silver_customers @job_run_id INT AS
 BEGIN
@@ -41,9 +41,7 @@ BEGIN
 	@rows_updated INT = 0,
 	@rows_inserted INT = 0,
 	@rows_loaded INT = 0,
-	@rows_diff INT,
-	@rows_failed_nulls INT,
-	@rows_failed_duplicates INT;
+	@rows_diff INT;
 
 	-- Capture start time
 	SET @start_time = GETDATE();
@@ -87,8 +85,7 @@ BEGIN
 
 	BEGIN TRY
 		-- Drop staging table if it exist
-		IF OBJECT_ID('silver_stg.customers', 'U') IS NOT NULL
-		DROP TABLE silver_stg.customers;
+		TRUNCATE TABLE silver_stg.customers;
 
 		-- Transform retrieved records from source table
 		WITH data_transformations AS
@@ -118,16 +115,27 @@ BEGIN
 			country,
 			score,
 			HASHBYTES('SHA2_256', CONCAT_WS('|',
-			COALESCE(customer_id, ''),
+			COALESCE(CAST(customer_id AS NVARCHAR(10)), ''),
 			COALESCE(UPPER(first_name), ''),
 			COALESCE(UPPER(last_name), ''),
-			COALESCE(postal_code, ''),
+			COALESCE(CAST(postal_code AS NVARCHAR(10)), ''),
 			COALESCE(UPPER(city), ''),
 			COALESCE(UPPER(country), ''),
-			COALESCE(score, ''))) AS dwh_row_hash
+			COALESCE(CAST(score AS NVARCHAR(10)), ''))) AS dwh_row_hash
 		FROM data_transformations
 		)
-		-- Create staging table
+		-- Load staging table
+		INSERT INTO silver_stg.customers
+		(
+			customer_id,
+			first_name,
+			last_name,
+			postal_code,
+			city,
+			country,
+			score,
+			dwh_row_hash
+		)
 		SELECT
 			mc.customer_id,
 			mc.first_name,
@@ -137,7 +145,6 @@ BEGIN
 			mc.country,
 			mc.score,
 			mc.dwh_row_hash
-			INTO silver_stg.customers
 		FROM metadata_columns mc
 		LEFT JOIN silver.customers sc
 		ON mc.customer_id = sc.customer_id
@@ -154,7 +161,7 @@ BEGIN
 			SET @step_duration = DATEDIFF(second, @start_time, @end_time);
 			SET @step_status = 'NO_OPERATION';
 			SET @rows_to_load = 0;
-			SET @rows_diff = @rows_to_load - @rows_loaded;
+			SET @rows_diff = 0;
 
 			UPDATE metadata.etl_step_run
 				SET
@@ -168,6 +175,19 @@ BEGIN
 			RETURN;
 		END;
 
+		-- Drop temp table if exists
+		DROP TABLE IF EXISTS #dq_metrics;
+
+		-- Create a temporary table and load into it important dq metrics
+		SELECT
+			COUNT(*) AS rows_checked,
+			SUM(CASE WHEN customer_id IS NULL THEN 1 ELSE 0 END) AS rows_failed_pk_null,
+			COUNT(customer_id) - COUNT(DISTINCT customer_id) AS rows_failed_pk_duplicate,
+			SUM(CASE WHEN country NOT IN('United States', 'Germany', 'Italy', 'France') THEN 1 ELSE 0 END) AS rows_failed_invalid_country,
+			SUM(CASE WHEN score IS NULL OR score < 0 THEN 1 ELSE 0 END) AS rows_failed_invalid_score
+			INTO #dq_metrics
+		FROM silver_stg.customers
+
 		-- Load vital data quality checks info
 		INSERT INTO metadata.etl_data_quality_check
 		(
@@ -180,33 +200,21 @@ BEGIN
 			rows_failed,
 			dq_status
 		)
-		SELECT @job_run_id, @step_run_id, @ingest_layer, @ingest_table, 'PK_NULLS', COUNT(*) AS rows_checked, 
-		SUM(CASE WHEN customer_id IS NULL THEN 1 ELSE 0 END) AS rows_failed, 
-		CASE WHEN (SUM(CASE WHEN customer_id IS NULL THEN 1 ELSE 0 END)) > 0 THEN 'FAILED' ELSE 'PASSED' END AS dq_status FROM silver_stg.customers
+		SELECT @job_run_id, @step_run_id, @ingest_layer, @ingest_table, 'PK_NULL', rows_checked, rows_failed_pk_null AS rows_failed,
+		CASE WHEN rows_failed_pk_null > 0 THEN 'FAILED' ELSE 'PASSED' END AS dq_status FROM #dq_metrics
 		UNION ALL
-		SELECT @job_run_id, @step_run_id, @ingest_layer, @ingest_table, 'PK_DUPLICATES', COUNT(*) AS rows_checked, 
-		COUNT(customer_id) - COUNT(DISTINCT customer_id) AS rows_failed,
-		CASE WHEN (COUNT(customer_id) - COUNT(DISTINCT customer_id)) > 0 THEN 'FAILED' ELSE 'PASSED' END AS dq_status FROM silver_stg.customers
+		SELECT @job_run_id, @step_run_id, @ingest_layer, @ingest_table, 'PK_DUPLICATE', rows_checked, rows_failed_pk_duplicate AS rows_failed,
+		CASE WHEN rows_failed_pk_duplicate > 0 THEN 'FAILED' ELSE 'PASSED' END AS dq_status FROM #dq_metrics
 		UNION ALL
-		SELECT @job_run_id, @step_run_id, @ingest_layer, @ingest_table, 'INVALID_COUNTRY', COUNT(*) AS rows_checked, 
-		SUM(CASE WHEN country NOT IN('United States', 'Germany', 'Italy', 'France') THEN 1 ELSE 0 END) AS rows_failed,
-		CASE WHEN (SUM(CASE WHEN country NOT IN('United States', 'Germany', 'Italy', 'France') THEN 1 ELSE 0 END)) > 0 THEN 'FAILED' ELSE 'PASSED' END AS 
-		dq_status  FROM silver_stg.customers
+		SELECT @job_run_id, @step_run_id, @ingest_layer, @ingest_table, 'INVALID_COUNTRY', rows_checked, rows_failed_invalid_country AS rows_failed,
+		CASE WHEN rows_failed_invalid_country > 0 THEN 'FAILED' ELSE 'PASSED' END AS dq_status FROM #dq_metrics
 		UNION ALL
-		SELECT @job_run_id, @step_run_id, @ingest_layer, @ingest_table, 'INVALID_SCORE', COUNT(*) AS rows_checked, 
-		SUM(CASE WHEN score IS NULL OR score < 0 THEN 1 ELSE 0 END) AS rows_failed,
-		CASE WHEN (SUM(CASE WHEN score IS NULL OR score < 0 THEN 1 ELSE 0 END)) > 0 THEN 'FAILED' ELSE 'PASSED' END AS dq_status  
-		FROM silver_stg.customers;
-
-		-- Retrive rows failed for vital dq rule
-		SELECT @rows_failed_nulls = rows_failed FROM metadata.etl_data_quality_check 
-		WHERE dq_check_name = 'PK_NULLS' AND step_run_id = @step_run_id;
-
-		SELECT @rows_failed_duplicates = rows_failed FROM metadata.etl_data_quality_check 
-		WHERE dq_check_name = 'PK_DUPLICATES' AND step_run_id = @step_run_id;
+		SELECT @job_run_id, @step_run_id, @ingest_layer, @ingest_table, 'INVALID_SCORE', rows_checked, rows_failed_invalid_score AS rows_failed,
+		CASE WHEN rows_failed_invalid_score > 0 THEN 'FAILED' ELSE 'PASSED' END AS dq_status FROM #dq_metrics;
 
 		-- Stop transaction if critical dq rule is violated
-		IF @rows_failed_nulls > 0 OR @rows_failed_duplicates > 0 THROW 50001, 
+		IF EXISTS(SELECT 1 FROM metadata.etl_data_quality_check WHERE (step_run_id = @step_run_id) 
+		AND (dq_check_name = 'PK_NULL' OR dq_check_name = 'PK_DUPLICATE') AND (rows_failed > 0)) THROW 50001, 
 		'Critical Data Quality Rule Violated: Unable to load due to PRIMARY KEY containing either NULLS or DUPLICATES.', 1;
 
 		-- Begin Transaction
