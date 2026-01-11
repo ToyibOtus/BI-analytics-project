@@ -3,13 +3,13 @@
 Stored Procedure: Load Gold Table (Silver -> Gold)
 =======================================================================================================
 Script Purpose:
-	This script loads data from a silver table into a corresponding gold table [customers].
+	This script loads data from a silver table into a corresponding gold table [dim_customers].
 	It also performs data integration where necessary. Additionaly, it loads log tables 
 	with vital log details, essential for traceability and debugging.
 
 Parameter: @job_run_id
 
-Usage: EXEC gold.usp_load_gold_customers @job_run_id
+Usage: EXEC usp_load_gold_dim_customers @job_run_id
 
 Note:
 	* Running this script independently demands that you assign an integer value to @job_run_id.
@@ -18,7 +18,7 @@ Note:
 	* To test the working condition of this script, check folder titled "test_run".
 =======================================================================================================
 */
-CREATE OR ALTER PROCEDURE gold.usp_load_gold_customers @job_run_id INT AS
+CREATE OR ALTER PROCEDURE gold.usp_load_gold_dim_customers @job_run_id INT AS
 BEGIN
 	-- Abort on severe error
 	SET XACT_ABORT ON;
@@ -26,10 +26,10 @@ BEGIN
 	-- Create and map values to variables where necessary
 	DECLARE 
 	@step_run_id INT,
-	@step_name NVARCHAR(50) = 'usp_load_gold_customers',
+	@step_name NVARCHAR(50) = 'usp_load_gold_dim_customers',
 	@load_type NVARCHAR(50) = 'INCREMENTAL',
 	@ingest_layer NVARCHAR(50) = 'GOLD',
-	@ingest_table NVARCHAR(50) = 'customers',
+	@ingest_table NVARCHAR(50) = 'dim_customers',
 	@start_time DATETIME,
 	@end_time DATETIME,
 	@step_duration INT,
@@ -98,17 +98,17 @@ BEGIN
 			sc.country,
 			sc.score
 		FROM silver.customers sc
-		LEFT JOIN gold.customers gc
-		ON sc.customer_id = gc.customer_id
+		LEFT JOIN gold.dim_customers dc
+		ON sc.customer_id = dc.customer_id
 		WHERE
-			(gc.customer_id IS NULL) OR
-			(gc.customer_id IS NOT NULL AND
-			(COALESCE(sc.first_name, '') != COALESCE(gc.first_name, '') OR
-			COALESCE(sc.last_name, '') != COALESCE(gc.last_name, '') OR
-			COALESCE(sc.postal_code, -1) != COALESCE(gc.postal_code, -1) OR
-			COALESCE(sc.city, '') != COALESCE(gc.city, '') OR
-			COALESCE(sc.country, '') != COALESCE(gc.country, '') OR
-			COALESCE(sc.score, -1) != COALESCE(gc.score, -1)))
+			(dc.customer_id IS NULL) OR
+			(dc.customer_id IS NOT NULL AND
+			(COALESCE(sc.first_name, '') != COALESCE(dc.first_name, '') OR
+			COALESCE(sc.last_name, '') != COALESCE(dc.last_name, '') OR
+			COALESCE(sc.postal_code, -1) != COALESCE(dc.postal_code, -1) OR
+			COALESCE(sc.city, '') != COALESCE(dc.city, '') OR
+			COALESCE(sc.country, '') != COALESCE(dc.country, '') OR
+			COALESCE(sc.score, -1) != COALESCE(dc.score, -1)))
 		)
 		-- Load new records into temp table
 		SELECT
@@ -158,7 +158,7 @@ BEGIN
 				tgt.city = src.city, 
 				tgt.country = src.country, 
 				tgt.score = src.score
-				FROM gold.customers tgt
+				FROM gold.dim_customers tgt
 				INNER JOIN #gold_stg_customers src
 				ON tgt.customer_id = src.customer_id
 			WHERE 
@@ -173,7 +173,7 @@ BEGIN
 		SET @rows_updated = @@ROWCOUNT;
 
 		-- Load new records into target table		
-		INSERT INTO gold.customers
+		INSERT INTO gold.dim_customers
 		(
 			customer_id,
 			first_name,
@@ -184,17 +184,17 @@ BEGIN
 			score
 		)
 		SELECT
-			gsc.customer_id,
-			gsc.first_name,
-			gsc.last_name,
-			gsc.postal_code,
-			gsc.city,
-			gsc.country,
-			gsc.score
-		FROM #gold_stg_customers gsc
-		LEFT JOIN gold.customers gc
-		ON gsc.customer_id = gc.customer_id
-		WHERE gc.customer_id IS NULL;
+			src.customer_id,
+			src.first_name,
+			src.last_name,
+			src.postal_code,
+			src.city,
+			src.country,
+			src.score
+		FROM #gold_stg_customers src
+		LEFT JOIN gold.dim_customers tgt
+		ON src.customer_id = tgt.customer_id
+		WHERE tgt.customer_id IS NULL;
 
 		-- Retrieve total rows inserted
 		SET @rows_inserted = @@ROWCOUNT;
