@@ -13,7 +13,7 @@ Parameter: @job_run_id
 Usage: EXEC silver.usp_load_silver_customers @job_run_id
 
 Note:
-	* Running this script independently demands that you assign a integer value to @job_run_id.
+	* Running this script independently demands that you assign an integer value to @job_run_id.
 	* It is imperative that this value already exist in the log table [metadata.etl_job_run] due
 	  to the foreign key constraint set on dependent tables.
 	* To test the working condition of this script, check folder titled "test_run".
@@ -84,7 +84,7 @@ BEGIN
 	SET @step_run_id = SCOPE_IDENTITY();
 
 	BEGIN TRY
-		-- Delete staging table
+		-- Delete data in staging table
 		TRUNCATE TABLE silver_stg.customers;
 
 		-- Transform retrieved records from source table
@@ -231,14 +231,14 @@ BEGIN
 				tgt.score = src.score,
 				tgt.dwh_row_hash = src.dwh_row_hash
 				FROM silver.customers tgt
-				LEFT JOIN silver_stg.customers src
+				INNER JOIN silver_stg.customers src
 				ON src.customer_id = tgt.customer_id
 			WHERE src.dwh_row_hash != tgt.dwh_row_hash;
 
 		-- Retrieve rows updated
 		SET @rows_updated = @@ROWCOUNT;
 
-		-- Inserted new records
+		-- Insert new records
 		INSERT INTO silver.customers
 		(
 			customer_id,
