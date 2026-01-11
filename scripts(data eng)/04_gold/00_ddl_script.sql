@@ -9,9 +9,9 @@ Script Purpose:
 */
 USE SalesDatabase;
 GO
-
--- Create table [gold.customers]
-CREATE TABLE gold.customers
+	
+-- Create table [gold.dim_customers]
+CREATE TABLE gold.dim_customers
 (
 	customer_key INT IDENTITY(101, 1) PRIMARY KEY,
 	customer_id INT NOT NULL,
@@ -23,8 +23,8 @@ CREATE TABLE gold.customers
 	score INT
 );
 
--- Create table [gold.products]
-CREATE TABLE gold.products
+-- Create table [gold.dim_products]
+CREATE TABLE gold.dim_products
 (
 	product_key INT IDENTITY(101, 1) PRIMARY KEY,
 	product_id INT NOT NULL,
@@ -33,8 +33,8 @@ CREATE TABLE gold.products
 	sub_category NVARCHAR(50) NOT NULL
 );
 
--- Create table [gold.orders]
-CREATE TABLE gold.orders
+-- Create table [gold.fact_orders]
+CREATE TABLE gold.fact_orders
 (
 	order_id INT NOT NULL,
 	customer_key INT NOT NULL,
@@ -47,6 +47,6 @@ CREATE TABLE gold.orders
 	profit DECIMAL(10, 3) NOT NULL,
 	unit_price DECIMAL(10, 3) NOT NULL,
 	CONSTRAINT uq_order_id_product_key UNIQUE (order_id, product_key),
-	CONSTRAINT fk_gold_orders_customer_key FOREIGN KEY(customer_key) REFERENCES gold.customers(customer_key),
-	CONSTRAINT fk_gold_orders_product_key FOREIGN KEY(product_key) REFERENCES gold.products(product_key)
+	CONSTRAINT fk_gold_fact_orders_customer_key FOREIGN KEY(customer_key) REFERENCES gold.dim_customers(customer_key),
+	CONSTRAINT fk_gold_fact_orders_product_key FOREIGN KEY(product_key) REFERENCES gold.dim_products(product_key)
 );
