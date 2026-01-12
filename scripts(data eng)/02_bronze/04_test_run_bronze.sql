@@ -1,9 +1,9 @@
 /*
 ========================================================================
-Ad hoc: Test bronze procedures
+Ad hoc Script: Test bronze procedures
 ========================================================================
 Script Purpose:
-	This procedure tests the working conditions of all bronze procedures
+	This script tests the working conditions of all bronze procedures
 	in [SalesDatabase]. It firstly loads into metadata.etl_job_run, 
 	satisfying the foreign key constraint set on dependent tables. 
 ========================================================================
