@@ -84,7 +84,7 @@ BEGIN
 
 	BEGIN TRY
 		-- Drop temp table if exists
-		DROP TABLE IF EXISTS #gold_stg_customers;
+		DROP TABLE IF EXISTS #gold_stg_dim_customers;
 
 		-- Retrieve new records
 		WITH new_records AS
@@ -119,11 +119,11 @@ BEGIN
 			city,
 			country,
 			score
-			INTO #gold_stg_customers
+			INTO #gold_stg_dim_customers
 		FROM new_records;
 
 		-- Retrieve total number of records from temp table
-		SELECT @rows_to_load = COUNT(*) FROM #gold_stg_customers;
+		SELECT @rows_to_load = COUNT(*) FROM #gold_stg_dim_customers;
 
 		-- Stop transaction if rows to load is zero or NULL
 		IF @rows_to_load = 0 OR @rows_to_load IS NULL
@@ -159,7 +159,7 @@ BEGIN
 				tgt.country = src.country, 
 				tgt.score = src.score
 				FROM gold.dim_customers tgt
-				INNER JOIN #gold_stg_customers src
+				INNER JOIN #gold_stg_dim_customers src
 				ON tgt.customer_id = src.customer_id
 			WHERE 
 				COALESCE(tgt.first_name, '') != COALESCE(src.first_name, '') OR
@@ -191,7 +191,7 @@ BEGIN
 			src.city,
 			src.country,
 			src.score
-		FROM #gold_stg_customers src
+		FROM #gold_stg_dim_customers src
 		LEFT JOIN gold.dim_customers tgt
 		ON src.customer_id = tgt.customer_id
 		WHERE tgt.customer_id IS NULL;
