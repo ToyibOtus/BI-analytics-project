@@ -1,6 +1,6 @@
 /*
 ========================================================================
-Ad hoc: Test silver procedures
+Ad hoc Script: Test silver procedures
 ========================================================================
 Script Purpose:
 	This script tests the working conditions of all silver procedures
