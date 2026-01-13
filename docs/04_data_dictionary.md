@@ -1,0 +1,59 @@
+# Data Dictionary for Gold Layer
+
+---
+
+## Overview
+The gold layer is composed of business-ready data, structured to support easy data access and retrieval, and thus enabling BI analytics
+and reporting. It contains two kinds of tables:
+* **dimension table**
+* **fact table**
+
+---
+
+## 01. gold.dim_customers
+**Purpose:** Houses customer information, including geographic data.
+
+
+Column                     |           Data Type               |         Description
+|--------------------------|-----------------------------------|-----------------------------------|
+customer_key               |INT                                |A surrogate key that uniquely identifies each customer record.
+customer_id                |INT                                |A unique numerical identifier assigned to each customer.
+first_name                 |NVARCHAR(50)                       |The first name of each customer.
+last_name                  |NVARCHAR(50)                       |The last name of each customer.
+postal_code                |INT                                |The geographical code of the customer delivery area.
+city                       |NVARCHAR(50)                       |The customer city of residence (e,g., Versailles).
+country                    |NVARCHAR(50)                       |The customer country of residence (e.g., France).
+score                      |INT                                |The customer score, an indicator of customer performance.
+
+---
+
+## 02. gold.dim_products
+**Purpose:** It holds product information, and their attributes.
+
+
+Column                     |           Data Type               |         Description
+|--------------------------|-----------------------------------|-----------------------------------|
+product_key                |INT                                |A surrogate key that uniquely identifies each product record.
+product_id                 |INT                                |A unique numerical identifier assigned to each product.
+product_name               |NVARCHAR(200)                      |A descriptive name of each product (e,g., Bush Somerset Collection Bookcase). 
+category                   |NVARCHAR(50)                       |A broad classification of each product (e.g., Furniture).
+sub_category               |NVARCHAR(50)                       |A more detailed classification of each product (e.g., Bookcases).
+
+---
+
+## 03. gold.fact_orders
+**Purpose:** It holds transactional records of customers and products.
+
+
+Column                     |           Data Type               |         Description
+|--------------------------|-----------------------------------|-----------------------------------|
+order_id                   |INT                                |A numerical number assigned to each transaction.
+customer_key               |INT                                |A surrogate key that connects fact table to dimension table, dim_customers.
+product_key                |INT                                |A surrogate key that connects fact table to dimension table, dim_products.
+order_date                 |DATE                               |The date an order was placed by each customer.
+shipping_date              |DATE                               |The date the ordered product was shipped.
+sales                      |DECIMAL(10, 3)                     |The total sales generated from an order, calculated as quantity * unit_price.
+quantity                   |INT                                |The quantity of products ordered.
+discount                   |DECIMAL(10, 2)                     |The percentage amount deducted from the original price of product, expressed as fraction.
+profit                     |DECIMAL(10, 3)                     |The total profit made each sale, after applying discount.
+unit_price                 |DECIMAL(10, 3)                     |The monetary value (dollars) of one unit of product. 
