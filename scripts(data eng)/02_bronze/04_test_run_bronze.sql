@@ -34,5 +34,5 @@ SET @job_run_id = SCOPE_IDENTITY();
 
 -- Load bronze layer
 EXEC bronze.usp_load_bronze_customers @job_run_id;
-EXEC bronze.usp_load_bronze_orders @job_run_id;
 EXEC bronze.usp_load_bronze_products @job_run_id;
+EXEC bronze.usp_load_bronze_orders @job_run_id;
