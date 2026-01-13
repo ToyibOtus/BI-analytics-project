@@ -26,9 +26,9 @@ BEGIN
 	-- Create and map values to variables where necessary
 	DECLARE
 	@step_run_id INT,
-	@step_name NVARCHAR(50) = 'usp_load_gold_fact_orders',
+	@step_name NVARCHAR(50) = 'gold.usp_load_gold_fact_orders',
 	@load_type NVARCHAR(50) = 'INCREMENTAL',
-	@ingest_layer NVARCHAR(50) = 'GOLD',
+	@ingest_layer NVARCHAR(50) = 'gold',
 	@ingest_table NVARCHAR(50) = 'fact_orders',
 	@start_time DATETIME,
 	@end_time DATETIME,
@@ -236,7 +236,7 @@ BEGIN
 			WHERE step_run_id = @step_run_id;
 
 		-- Load error details into log table
-		INSERT INTO metadata.etl_error_log
+		INSERT INTO metadata.etl_step_run_error_log
 		(
 			job_run_id,
 			step_run_id,
