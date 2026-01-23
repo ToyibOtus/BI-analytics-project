@@ -16,7 +16,7 @@ Note:
 	* It is imperative that this value already exist in the log table [metadata.etl_job_run] due
 	  to the foreign key constraint set on both log tables [metadata.etl_step_run] and
 	  [metadata.etl_step_run].
-	* To test the working condition of this script, check folder titled "test_run".
+	* To test the working condition of this script, check folder titled "test_run_bronze".
 =============================================================================================
 */
 CREATE OR ALTER PROCEDURE bronze.usp_load_bronze_products @job_run_id INT AS
