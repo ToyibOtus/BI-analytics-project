@@ -6,7 +6,7 @@ Script Purpose:
 	This script loads data from a bronze table into a corresponding silver table [products].
 	It also performs data transformaions where necessary. Additionaly, it loads log tables 
 	with vital log details, essential not only for traceability and debugging, but for 
-	monitoring the quality of the silver records.
+	monitoring the quality of silver records.
 
 Parameter: @job_run_id
 
@@ -16,7 +16,7 @@ Note:
 	* Running this script independently demands that you assign an integer value to @job_run_id.
 	* It is imperative that this value already exist in the log table [metadata.etl_job_run] due
 	  to the foreign key constraint set on dependent tables.
-	* To test the working condition of this script, check folder titled "test_run".
+	* To test the working condition of this script, check folder titled "test_run_silver".
 =======================================================================================================
 */
 CREATE OR ALTER PROCEDURE silver.usp_load_silver_products @job_run_id INT AS
