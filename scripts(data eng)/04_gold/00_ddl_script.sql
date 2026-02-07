@@ -10,10 +10,6 @@ Script Purpose:
 USE SalesDatabase;
 GO
 
-DROP TABLE IF EXISTS gold.fact_orders;
-DROP TABLE IF EXISTS gold.dim_customers;
-DROP TABLE IF EXISTS gold.dim_products;
-
 -- Drop table [gold.dim_customers] if exists
 IF OBJECT_ID('gold.dim_customers', 'U') IS NOT NULL
 DROP TABLE gold.dim_customers;
