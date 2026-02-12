@@ -94,6 +94,8 @@ BEGIN
 			product_id,
 			CASE	
 				WHEN product_name LIKE ('"%') THEN TRIM(REPLACE(product_name, '"', ''))
+				WHEN product_name LIKE ('#10- %') THEN TRIM(REPLACE(REPLACE(product_name, '#', ''), '- ', '-'))
+				WHEN product_name LIKE ('#%') THEN TRIM(REPLACE(product_name, '#', ''))
 				ELSE TRIM(product_name)
 			END AS product_name,
 			TRIM(category) AS category,
