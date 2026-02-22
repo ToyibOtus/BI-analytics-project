@@ -61,7 +61,7 @@ unit_price                 |DECIMAL(10,2)                      |The monetary val
 
 ---
 
-## 04.gold.vw_customers_report
+## 04. gold.vw_customers_report
 **Purpose:** Provides a consolidated view of customer performance, profitability, and behavioral metrics.
 Used for customer segmentation, retention analysis, discount dependency assessment, and executive reporting.
 
@@ -105,7 +105,7 @@ Score range: 0 (lowest) to 1 (highest)
 
 ---
 
-## 04.gold.vw_products_report
+## 04. gold.vw_products_report
 **Purpose:** Provides aggregated product-level performance metrics for evaluating revenue, profitability, demand velocity, discount
 exposure, and lifecycle status.
 
