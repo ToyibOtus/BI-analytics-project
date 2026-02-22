@@ -52,8 +52,9 @@ customer_key               |INT                                |A surrogate key 
 product_key                |INT                                |A surrogate key that connects fact table to dimension table, dim_products.
 order_date                 |DATE                               |The date an order was placed by each customer.
 shipping_date              |DATE                               |The date the ordered product was shipped.
-sales                      |DECIMAL(10, 3)                     |The total sales generated from an order, calculated as quantity * unit_price.
+gross_sales                |DECIMAL(10, 2)                     |Total revenue generated from an order assuming product(s) is sold at base price, calculated as quantity * unit_price.
+net_sales                  |DECIMAL(10, 2)                     |Actual realized revenue generated per order after gross_sales has been discounted, calculated as (1 - discount) * gross_sales.
 quantity                   |INT                                |The quantity of products ordered.
 discount                   |DECIMAL(10, 2)                     |The percentage amount deducted from the original price of product, expressed as fraction.
-profit                     |DECIMAL(10, 3)                     |The total profit made each sale, after applying discount.
-unit_price                 |DECIMAL(10, 3)                     |The monetary value (dollars) of one unit of product. 
+profit                     |DECIMAL(10, 2)                     |The total profit made each sale, after applying discount.
+unit_price                 |DECIMAL(10, 2)                     |The monetary value (dollars) of one unit of product. 
