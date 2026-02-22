@@ -1,6 +1,6 @@
-# Data Warehouse & Analytics Project
+# Business Intelligence Analytics Project
 
-Welcome to my **Data Warehouse & Analytics Project**! This project walks you through how to build an sql-end-to-end-data warehouse. Designed as a portfolio project, it serves as 
+Welcome to my **Business Intelligence Analytics Project**! This project walks you through how to build an sql-end-to-end-data warehouse. Designed as a portfolio project, it serves as 
 an excellent resource to both data engineers and analysts, as it provides industry-best data engineering and analytics solutions, from building a data warehouse to generating analytical
 reports, and thus enabling data-driven decisions by stakeholders.
 
