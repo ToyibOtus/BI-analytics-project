@@ -146,8 +146,8 @@ SELECT
 FROM product_score
 )
 SELECT
-	product_key,
 	product_id,
+	product_key,
 	product_name,
 	category,
 	sub_category,
@@ -165,8 +165,14 @@ SELECT
 	ROUND(CAST(avg_profit_per_revenue AS FLOAT), 2) AS avg_profit_per_revenue,
 	performance_score,
 	CASE
+		WHEN avg_profit_per_revenue <= -0.10 THEN 'Severly Unprofitable'
+		WHEN avg_profit_per_revenue < 0 THEN 'Slightly Unprofitable'
+		WHEN avg_profit_per_revenue <= 0.10 THEN 'Low Margin'
+		ELSE 'Healthy Margin'
+	END AS profit_margin_status,
+	CASE
 		WHEN performance_score >= 0.8 THEN 'High Performer'
-		WHEN performance_score >= 0.30 THEN 'Mid Performer'
+		WHEN performance_score >= 0.20 THEN 'Mid Performer'
 		ELSE 'Low Performer'
 	END AS product_status
 FROM product_performance;
