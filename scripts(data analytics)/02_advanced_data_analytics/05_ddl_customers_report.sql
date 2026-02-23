@@ -175,7 +175,7 @@ SELECT
 	ROUND(CAST(avg_profit_per_sales AS FLOAT), 2) AS avg_profit_per_sales,
 	performance_score,
 	CASE
-		WHEN DAY(first_order_date) >= 90 THEN 'New' 
+		WHEN DATEDIFF(day, first_order_date, GETDATE()) <= 90 THEN 'New' 
 		WHEN performance_score >= 0.8 THEN 'High Performer'
 		WHEN performance_score >= 0.20 THEN 'Mid Performer'
 		ELSE 'Low Performer'
