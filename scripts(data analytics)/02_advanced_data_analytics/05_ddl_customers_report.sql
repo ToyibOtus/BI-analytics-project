@@ -154,8 +154,8 @@ SELECT
 FROM customer_score
 )
 SELECT
-	customer_key,
 	customer_id,
+	customer_key,
 	customer_name,
 	postal_code,
 	city,
@@ -175,8 +175,9 @@ SELECT
 	ROUND(CAST(avg_profit_per_sales AS FLOAT), 2) AS avg_profit_per_sales,
 	performance_score,
 	CASE
-		WHEN performance_score >= 0.8 THEN 'VIP'
-		WHEN performance_score >= 0.30 THEN 'Regular'
-		ELSE 'New'
+		WHEN DAY(first_order_date) >= 90 THEN 'New' 
+		WHEN performance_score >= 0.8 THEN 'High Performer'
+		WHEN performance_score >= 0.20 THEN 'Mid Performer'
+		ELSE 'Low Performer'
 	END AS customer_status
 FROM customer_performance
