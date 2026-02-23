@@ -88,7 +88,7 @@ avg_order_value            |FLOAT                              |The average reve
 avg_monthly_spend          |FLOAT                              |The average revenue generated per month.
 avg_profit_per_sales       |FLOAT                              |The average profit per revenue.
 performance_score          |FLOAT                              |Weighted composite score (0-1). Overall customer value index.
-customer_status            |VARCHAR(7)                         |Labels assigned to customer based on performance score. (e.g., VIP, Regular, & New).
+customer_status            |VARCHAR(7)                         |Labels assigned to customer based on performance score. (e.g., 'New', 'High Performer', 'Mid Performer, & 'Low Performer').
 
 ## Performance Score Logic
 
