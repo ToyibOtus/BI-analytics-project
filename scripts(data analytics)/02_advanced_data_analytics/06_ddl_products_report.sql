@@ -165,10 +165,11 @@ SELECT
 	avg_profit_per_revenue,
 	performance_score,
 	CASE
-		WHEN avg_profit_per_revenue <= -0.10 THEN 'Severly Unprofitable'
+		WHEN avg_profit_per_revenue <= -0.10 THEN 'Severely Unprofitable'
 		WHEN avg_profit_per_revenue < 0 THEN 'Slightly Unprofitable'
 		WHEN avg_profit_per_revenue <= 0.10 THEN 'Low Margin'
-		ELSE 'Healthy Margin'
+		WHEN avg_profit_per_revenue > 0.10 AND avg_profit_per_revenue <= 0.20 THEN 'Healthy Margin'
+		ELSE 'High Margin'
 	END AS profit_margin_status,
 	CASE
 		WHEN performance_score >= 0.8 THEN 'High Performer'
