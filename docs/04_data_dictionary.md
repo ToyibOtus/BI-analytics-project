@@ -130,7 +130,8 @@ avg_order_revenue          |FLOAT                              |Revenue generate
 avg_monthly_revenue        |FLOAT                              |Revenue generated per month.
 avg_profit_per_revenue     |FLOAT                              |Profit generated per revenue.
 performance_score          |FLOAT                              |Weighted composite score (0-1). Overall product performance index.
-product_status             |NVARCHAR(14)                       |Labels assigned to product based on performance score(e.g, High, Mid, & Low Performers).
+profit_margin_status       |NVARCHAR(21)                       |Labels assigned to products based on profit margin (e.g., 'Severely Unprofitable', 'Slightly Unprofitable', 'Low Margin', & 'Healthy Margin'). 
+product_status             |NVARCHAR(14)                       |Labels assigned to products based on performance score(e.g, High, Mid, & Low Performers).
 
 
 ## Performance Score Logic
@@ -147,6 +148,13 @@ Composite score weighted by:
 Score range: 0 (lowest) to 1 (highest)
 
 
+
+## Profit Margin Logic
+
+* Severely Unprofitable (<= -0.10)
+* Slightly Unprofitable (< 0)
+* Low Margin (Between 0 and 0.10)
+* Healthy Margin (> 0.10) 
 
 
 
