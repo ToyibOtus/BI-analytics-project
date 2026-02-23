@@ -136,11 +136,11 @@ SELECT
 	total_sales,
 	total_quantity,
 	total_profit,
-	avg_discount,
+	ROUND(CAST(avg_discount AS FLOAT), 2) AS avg_discount,
 	recency_month,
-	avg_order_revenue,
-	avg_monthly_revenue,
-	avg_profit_per_revenue,
+	ROUND(CAST(avg_order_revenue AS FLOAT), 2) AS avg_order_revenue,
+	ROUND(CAST(avg_monthly_revenue AS FLOAT), 2) AS avg_monthly_revenue,
+	ROUND(CAST(avg_profit_per_revenue AS FLOAT), 2) AS avg_profit_per_revenue,
 	ROUND(CAST((profit_score * 0.40) + (revenue_score * 0.20) + (quantity_score * 0.15) 
 	+ (recency_score * 0.10) + (discount_reliance * 0.10) + (lifespan_score * 0.05) AS FLOAT), 2) AS performance_score
 FROM product_score
@@ -159,10 +159,10 @@ SELECT
 	total_quantity,
 	total_sales,
 	total_profit,
-	ROUND(CAST(avg_discount AS FLOAT), 2) AS avg_discount,
-	ROUND(CAST(avg_order_revenue AS FLOAT), 2) AS avg_order_revenue,
-	ROUND(CAST(avg_monthly_revenue AS FLOAT), 2) AS avg_monthly_revenue,
-	ROUND(CAST(avg_profit_per_revenue AS FLOAT), 2) AS avg_profit_per_revenue,
+	avg_discount,
+	avg_order_revenue,
+	avg_monthly_revenue,
+	avg_profit_per_revenue,
 	performance_score,
 	CASE
 		WHEN avg_profit_per_revenue <= -0.10 THEN 'Severly Unprofitable'
