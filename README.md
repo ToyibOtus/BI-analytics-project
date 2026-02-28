@@ -67,13 +67,58 @@ This section of the project is divided into two phases **Exploratory Data Analyt
 ### Objectives
 Generate SQL and BI reports that draw insight into:
 
-* **Customer Performance**
 * **Product Performance**
+* **Customer Performance**
 * **Sales Trends**
 
-These key business metrics generate insightful information about the business overall performance, enforcing data-driven decision making.
+---
+
+## Executive Dashboards
+These dashboards provide an executive-level view of product and customer performance, focusing on profitability, pricing discipline, and revenue contribution to support data-driven strategic decisions.
+
+### Product Performance Dashboard
+
+![product_performance_dashboard.png](reports/product_performance_dashboard.png)
+
+**Purpose**: Evaluate product profitability, revenue contribution, and margin erosion.
+
+Key Business Questions Answered:
+
+* Which subcategory of products drive the most profit?
+* Did all subcategory of products generate more revenue relative to the previous year?
+* Which products drive the most profit?
+* Where is margin leakage occurring?
+
+**Core Metrics**:
+
+* Sales
+* Profit
+* Quantity Sold
+* Profit Margin
+* Avg Discount
+
+### Customer Performance Dashboard
+
+![customer_performance_dashboard.png](reports/customer_performance_dashboard.png)
+
+**Purpose:** Assess customer profitability, revenue contribution, and discount dependence.
+
+Key Business Questions Answered:
+
+* What is the average sales per customers?
+* Which customers erode margin through discount usage?
+* Who are our most profitable customers?
+
+**Core Metrics**:
+
+* Customer Profit Margin
+* Avg Discount
+* Revenue Contribution
+
+**Live Version of Dashboards**: https://public.tableau.com/views/ProductPerformanceDashboard_17719349195140/ProductPerformanceDashboard?:language=en-US&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link
 
 ---
+
 
 ## Tools & Technologies Used
 
@@ -82,7 +127,7 @@ These key business metrics generate insightful information about the business ov
 * **SQL Server Management Studio (SSMS)**: Interface for interacting with SQL server.
 * **Draw.io**: For designing the data architecture, data flow, integration model, and data model.
 * **Git Hub**: For committing codes.
-
+* **Tableau**: For data visualization.
 ---
 
 ## License
