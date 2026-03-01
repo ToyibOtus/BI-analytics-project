@@ -111,9 +111,9 @@ Key Business Questions Answered:
 
 **Core Metrics**:
 
-* Customer Profit Margin
-* Avg Discount
-* Revenue Contribution
+* Total Customers
+* Total Orders
+* Average Sales Per Customer
 
 **Live Version of Dashboards**: https://public.tableau.com/views/ProductPerformanceDashboard_17719349195140/ProductPerformanceDashboard?:language=en-US&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link
 
