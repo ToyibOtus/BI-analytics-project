@@ -7,6 +7,45 @@ Script Purpose:
 	distributions or contibutions of metrics across various dimensions.
 ==========================================================================
 */
+-- What is the biggest driver of profit margin erosion?
+WITH product_metrics AS
+(
+SELECT
+	dp.product_name,
+	SUM(fo.gross_sales)/SUM(fo.quantity) AS avg_gross_price_per_qty,
+	SUM(fo.net_sales)/SUM(fo.quantity) AS avg_net_sales_per_qty,
+	(SUM(fo.net_sales) - SUM(fo.profit))/SUM(fo.quantity) AS avg_cost_per_qty,
+	SUM(fo.profit)/NULLIF(SUM(fo.net_sales), 0) AS profit_margin,
+	COUNT(*) OVER() AS total_products
+FROM gold.fact_orders fo
+LEFT JOIN gold.dim_products dp
+ON fo.product_key = dp.product_key
+GROUP BY dp.product_name
+)
+, product_segmentation AS
+(
+SELECT
+	product_name,
+	avg_gross_price_per_qty,
+	avg_net_sales_per_qty,
+	avg_cost_per_qty,
+	total_products,
+	CASE
+		WHEN avg_gross_price_per_qty < avg_cost_per_qty THEN 'Price-Driven Erosion'
+		WHEN avg_gross_price_per_qty > avg_cost_per_qty AND avg_net_sales_per_qty < avg_cost_per_qty THEN 'Discount-Driven Erosion'
+		ELSE 'Unknown'
+	END AS product_segment
+FROM product_metrics
+WHERE profit_margin < 0
+)
+SELECT
+	product_segment,
+	COUNT(*) AS products_per_segment,
+	ROUND((CAST(COUNT(*) AS FLOAT)/MAX(total_products)) * 100, 2) AS pct_product_count_cont
+FROM product_segmentation
+GROUP BY product_segment;
+
+
 -- How much impact does discount have on key business metrics relative to full price?
 WITH metrics AS
 (
@@ -225,6 +264,8 @@ SELECT
 	END AS customer_segment
 FROM customer_rank
 )
+, percent_share AS
+(
 SELECT
 	customer_segment,
 	SUM(full_priced_sales) AS full_priced_sales,
@@ -234,6 +275,19 @@ SELECT
 	ROUND((CAST(SUM(discounted_sales) AS FLOAT)/SUM(total_sales)) * 100, 2) AS discounted_sales_share_pct
 FROM customer_segmentation
 GROUP BY customer_segment
+)
+SELECT
+	customer_segment,
+	full_priced_sales,
+	discounted_sales,
+	total_sales,
+	full_priced_sales_share_pct,
+	discounted_sales_share_pct,
+	CASE
+		WHEN full_priced_sales_share_pct > discounted_sales_share_pct THEN 'Full-Priced Driven'
+		ELSE 'Discount Driven'
+	END AS sales_segment
+FROM percent_share
 ORDER BY total_sales DESC;
 
 
@@ -321,6 +375,6 @@ SELECT
 	ROUND(CAST(discount_cost AS FLOAT), 2) AS discount_cost,
 	ROUND(CAST(cumulative_discount_cost AS FLOAT), 2) AS cumulative_discount_cost,
 	ROUND((CAST(cumulative_discount_cost AS FLOAT)/SUM(discount_cost) OVER()) * 100, 2) AS cumulative_discount_cost_dist_pct,
-	ROUND((CAST(product_rank AS FLOAT)/MAX(product_rank) OVER()) * 100, 2) AS product_count_dist,
+	ROUND((CAST(product_rank AS FLOAT)/MAX(product_rank) OVER()) * 100, 2) AS product_count_dist_pct,
 	ROUND(CAST(weighted_discount AS FLOAT), 2) AS weighted_discount
 FROM product_metrics;
