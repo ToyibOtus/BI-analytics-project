@@ -60,6 +60,8 @@ This data warehouse is built using the Medallion Architecture **Bronze**, **Silv
 * **Silver**: Houses cleaned and prepared data.
 * **Gold**: Houses business-ready data.
 
+---
+
 ## 02. Analytics & BI Reporting (Data Analytics)
 
 This section of the project is divided into two phases **Exploratory Data Analytics (EDA)** and **Advanced Data Analytics**.
